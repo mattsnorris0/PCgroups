@@ -12040,7 +12040,7 @@ function createGrid(options = {}) {
     return parsedProp;
   }
   const GridRoot = createStyledComponent(generateGridColumnsStyles, generateGridColumnSpacingStyles, generateGridRowSpacingStyles, generateGridSizeStyles, generateGridDirectionStyles, generateGridStyles, generateGridOffsetStyles);
-  const Grid = /* @__PURE__ */ reactExports.forwardRef(function Grid22(inProps, ref) {
+  const Grid3 = /* @__PURE__ */ reactExports.forwardRef(function Grid22(inProps, ref) {
     const theme2 = useTheme2();
     const themeProps = useThemeProps2(inProps);
     const props = extendSxProp$1(themeProps);
@@ -12097,8 +12097,8 @@ function createGrid(options = {}) {
       })
     });
   });
-  Grid.muiName = "Grid";
-  return Grid;
+  Grid3.muiName = "Grid";
+  return Grid3;
 }
 function getLight() {
   return {
@@ -15376,11 +15376,22 @@ const Grid2 = createGrid({
   }),
   useTheme
 });
+function EmptyGroups() {
+  return /* @__PURE__ */ jsxRuntimeExports.jsx(
+    Typography,
+    {
+      align: "center",
+      variant: "h6",
+      sx: { margin: "auto" },
+      children: "Small groups are currently not in session"
+    }
+  );
+}
 const ArrowForwardIcon = createSvgIcon(/* @__PURE__ */ jsxRuntimeExports.jsx("path", {
   d: "m12 4-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"
 }), "ArrowForward");
 function GroupCard({ group }) {
-  return /* @__PURE__ */ jsxRuntimeExports.jsx(
+  return /* @__PURE__ */ jsxRuntimeExports.jsx(Grid2, { size: { xs: 12, md: 4 }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(
     Card,
     {
       sx: { maxWidth: 400 },
@@ -15388,7 +15399,7 @@ function GroupCard({ group }) {
       children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
         CardActionArea,
         {
-          href: group.attributes.public_church_center_web_url,
+          href: group.registration_url,
           sx: { textAlign: "left", "&:hover": { color: "transparent" } },
           children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -15396,7 +15407,7 @@ function GroupCard({ group }) {
               {
                 component: "img",
                 height: "100%",
-                image: group.attributes.header_image.medium,
+                image: group.group_img,
                 sx: { objectFit: "contain" },
                 alt: "group graphic"
               }
@@ -15405,10 +15416,9 @@ function GroupCard({ group }) {
               Button,
               {
                 size: "medium",
-                color: "primary",
-                sx: { marginLeft: 2, marginBottom: 1, "&:hover": { backgroundColor: "transparent" } },
+                sx: { color: "#808080", marginLeft: 2, marginBottom: 1, "&:hover": { color: "#808080" } },
                 children: [
-                  group.attributes.name,
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: "More Info" }),
                   /* @__PURE__ */ jsxRuntimeExports.jsx(ArrowForwardIcon, { sx: { marginLeft: 1 } })
                 ]
               }
@@ -15417,48 +15427,49 @@ function GroupCard({ group }) {
         }
       )
     }
+  ) });
+}
+function Grid({ groups }) {
+  return /* @__PURE__ */ jsxRuntimeExports.jsx(
+    Grid2,
+    {
+      container: true,
+      spacing: 2,
+      direction: { xs: "column", md: "row" },
+      children: groups.map(
+        (g) => g.visibility === true && /* @__PURE__ */ jsxRuntimeExports.jsx(
+          GroupCard,
+          {
+            group: g
+          },
+          g.id
+        )
+      )
+    }
   );
 }
 function GroupGrid({ groups, loading }) {
   return /* @__PURE__ */ jsxRuntimeExports.jsxs(Box, { children: [
-    !loading && groups.length === 0 && /* @__PURE__ */ jsxRuntimeExports.jsx(
-      Typography,
-      {
-        align: "center",
-        variant: "h6",
-        sx: { margin: "auto" },
-        children: "Small groups are currently not in session"
-      }
-    ),
-    /* @__PURE__ */ jsxRuntimeExports.jsx(
-      Grid2,
-      {
-        container: true,
-        spacing: 2,
-        direction: { xs: "column", md: "row" },
-        children: groups.map((g) => /* @__PURE__ */ jsxRuntimeExports.jsx(
-          Grid2,
-          {
-            size: { xs: 12, md: 4 },
-            children: /* @__PURE__ */ jsxRuntimeExports.jsx(GroupCard, { group: g })
-          },
-          g.id
-        ))
-      }
-    )
+    !loading && groups.listed.length === 0 && /* @__PURE__ */ jsxRuntimeExports.jsx(EmptyGroups, {}),
+    /* @__PURE__ */ jsxRuntimeExports.jsx(Grid, { groups: groups.listed })
   ] });
 }
 function App() {
-  const [groups, setGroups] = reactExports.useState([]);
+  const [groups, setGroups] = reactExports.useState({ listed: [], unlisted: [] });
   const [isLoading, setIsLoading] = reactExports.useState(true);
   const fetchGroups = async () => {
     try {
-      const url = "https://church-web-api--soma-church-web-app.us-central1.hosted.app/groups";
+      const url = "church-web-api--soma-church-web-app.us-central1.hosted.app/groups";
       const res = await fetch(url, {
         method: "GET",
+        headers: {
+          "ngrok-skip-browser-warning": "1"
+        }
       });
       const data = await res.json();
-      setGroups(data);
+      const listed = data.filter((i) => i.visibility === true);
+      const unlisted = data.filter((i) => i.visibility !== true);
+      setGroups((oldGroups) => ({ ...oldGroups, listed, unlisted }));
     } catch (e) {
       console.error("Error fetching data: ", e);
     }
