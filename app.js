@@ -15453,7 +15453,7 @@ function App() {
   const [isLoading, setIsLoading] = reactExports.useState(true);
   const fetchGroups = async () => {
     try {
-      const url = "church-web-api--soma-church-web-app.us-central1.hosted.app/groups";
+      const url = "https://church-web-api--soma-church-web-app.us-central1.hosted.app/groups";
       const res = await fetch(url, {
         method: "GET",
         headers: {
