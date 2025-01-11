@@ -15456,9 +15456,6 @@ function App() {
       const url = "https://church-web-api--soma-church-web-app.us-central1.hosted.app/groups";
       const res = await fetch(url, {
         method: "GET",
-        headers: {
-          "ngrok-skip-browser-warning": "1"
-        }
       });
       const data = await res.json();
       setGroups(data);
